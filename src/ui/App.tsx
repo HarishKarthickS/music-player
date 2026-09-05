@@ -229,8 +229,8 @@ export function App() {
     setPlayer((p) => ({ ...p, volume: next, muted: next === 0 ? p.muted : false }));
   }
 
-  const lcdTitle = playing?.title ?? "NO DISC";
-  const lcdArtist = playing?.artist ?? "Load a local file or the house tone";
+  const windowTitle = playing?.title ?? "NO TAPE";
+  const windowArtist = playing?.artist ?? "Slip a local file into the door";
   const clock = `${formatClock(player.positionMs)} / ${formatClock(player.durationMs ?? playing?.durationMs ?? null)}`;
 
   return (
@@ -273,31 +273,35 @@ export function App() {
       />
 
       <header className="mast">
-        <p className="brand">Line Stage</p>
-        <p className="model">MP-440 · local disc player</p>
+        <p className="brand">Pocket Deck</p>
+        <p className="model">WM-88 · stereo cassette</p>
       </header>
 
-      <section className="chassis" aria-label="Receiver">
-        <div className="wood wood-left" aria-hidden="true" />
+      <section className="chassis" aria-label="Walkman">
+        <div className="rail rail-left" aria-hidden="true" />
         <div className="face">
           <div className="face-top">
             <VuMeters active={player.status === "playing"} level={player.volume} />
-            <div className={`lcd ${playing ? "" : "lcd-empty"}`}>
-              <p className="lcd-label">Programme</p>
-              <p className="lcd-title">{lcdTitle}</p>
-              <p className="lcd-artist">{lcdArtist}</p>
-              <p className="lcd-clock">{clock}</p>
-              <p className="lcd-status">
-                {player.status === "error"
-                  ? "FAULT"
-                  : player.status === "playing"
-                    ? "PLAY"
-                    : player.status === "paused"
-                      ? "PAUSE"
-                      : player.status === "loading"
-                        ? "CUE"
-                        : "STOP"}
-              </p>
+            <div className={`cassette ${playing ? "" : "cassette-empty"} ${player.status === "playing" ? "cassette-spin" : ""}`}>
+              <span className="reel reel-l" aria-hidden="true" />
+              <div className="cassette-label">
+                <p className="lcd-label">Window</p>
+                <p className="lcd-title">{windowTitle}</p>
+                <p className="lcd-artist">{windowArtist}</p>
+                <p className="lcd-clock">{clock}</p>
+                <p className="lcd-status">
+                  {player.status === "error"
+                    ? "JAM"
+                    : player.status === "playing"
+                      ? "PLAY"
+                      : player.status === "paused"
+                        ? "PAUSE"
+                        : player.status === "loading"
+                          ? "LOAD"
+                          : "STOP"}
+                </p>
+              </div>
+              <span className="reel reel-r" aria-hidden="true" />
             </div>
           </div>
 
@@ -331,7 +335,7 @@ export function App() {
 
           <div className="bay">
             <label className="load-key">
-              Load disc
+              Load tape
               <input
                 type="file"
                 accept="audio/*"
@@ -345,14 +349,14 @@ export function App() {
               />
             </label>
             <button type="button" className="ghost-key" onClick={loadSample}>
-              House A440
+              Pocket tone
             </button>
             <button
               type="button"
               className={`ghost-key ${librettoOpen ? "ghost-on" : ""}`}
               onClick={() => setLibrettoOpen((v) => !v)}
             >
-              Libretto
+              J-card
             </button>
           </div>
 
@@ -375,7 +379,7 @@ export function App() {
             />
           )}
         </div>
-        <div className="wood wood-right" aria-hidden="true" />
+        <div className="rail rail-right" aria-hidden="true" />
       </section>
 
       {librettoOpen ? (
@@ -390,7 +394,7 @@ export function App() {
         />
       ) : null}
 
-      <p className="foot">Files stay on this machine. Nothing is uploaded.</p>
+      <p className="foot">Tapes stay in this browser. Nothing is uploaded.</p>
     </div>
   );
 }

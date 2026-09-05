@@ -1,11 +1,11 @@
 export function EmptyDeck() {
   return (
     <div className="empty-deck">
-      <p className="empty-kicker">Platter idle</p>
-      <h2>No file on the spindle</h2>
+      <p className="empty-kicker">Door open</p>
+      <h2>No cassette in the well</h2>
       <p>
-        Drop a local wav, mp3, or ogg with Load disc. This receiver never fetches a catalog — you
-        bring the records.
+        Load a local wav, mp3, or ogg through the magenta door. This Walkman never phones a catalog —
+        you bring the mixtape.
       </p>
     </div>
   );
