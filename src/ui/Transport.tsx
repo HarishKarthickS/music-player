@@ -23,9 +23,9 @@ export function Transport(props: TransportProps) {
 
   return (
     <div className="transport">
-      <div className="keys" role="group" aria-label="Transport">
+      <div className="keys" role="group" aria-label="Walkman keys">
         <button type="button" disabled={disabled} onClick={props.onPrev}>
-          Prev
+          Rew
         </button>
         <button type="button" className="key-main" disabled={disabled} onClick={props.onPlayPause}>
           {props.status === "playing" ? "Pause" : "Play"}
@@ -34,11 +34,11 @@ export function Transport(props: TransportProps) {
           Stop
         </button>
         <button type="button" disabled={disabled} onClick={props.onNext}>
-          Next
+          Ff
         </button>
       </div>
       <label className="seek">
-        <span>Needle</span>
+        <span>Tape</span>
         <input
           type="range"
           min={0}
@@ -49,7 +49,7 @@ export function Transport(props: TransportProps) {
         />
       </label>
       <label className="vol">
-        <span>Level</span>
+        <span>Vol</span>
         <input
           type="range"
           min={0}
@@ -58,7 +58,7 @@ export function Transport(props: TransportProps) {
           onChange={(e) => props.onVolume(Number(e.target.value) / 100)}
         />
         <button type="button" className="mute" onClick={props.onMute}>
-          {props.muted ? "Mute" : "Live"}
+          {props.muted ? "Mute" : "Phone"}
         </button>
       </label>
     </div>

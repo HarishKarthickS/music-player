@@ -13,9 +13,9 @@ export function QueueList({ queue, currentId, onPick, onDrop }: QueueListProps) 
   return (
     <div className="queue">
       <div className="queue-head">
-        <h2>Tape stack</h2>
+        <h2>Side A · matrix</h2>
         <p>
-          {queue.tracks.length} cue{queue.tracks.length === 1 ? "" : "s"} · now{" "}
+          {queue.tracks.length} track{queue.tracks.length === 1 ? "" : "s"} · now{" "}
           {current?.title ?? "none"}
         </p>
       </div>
