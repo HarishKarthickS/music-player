@@ -1,4 +1,4 @@
-import type { PlayerStatus } from "../domain/player";
+import { formatClock, type PlayerStatus } from "../domain/player";
 
 interface TransportProps {
   hasDisc: boolean;
@@ -22,10 +22,10 @@ export function Transport(props: TransportProps) {
   const disabled = !props.hasDisc;
 
   return (
-    <div className="transport">
-      <div className="keys" role="group" aria-label="Walkman keys">
+    <div className="player-bar">
+      <div className="keys" role="group" aria-label="Playback">
         <button type="button" disabled={disabled} onClick={props.onPrev}>
-          Rew
+          Previous
         </button>
         <button type="button" className="key-main" disabled={disabled} onClick={props.onPlayPause}>
           {props.status === "playing" ? "Pause" : "Play"}
@@ -34,11 +34,11 @@ export function Transport(props: TransportProps) {
           Stop
         </button>
         <button type="button" disabled={disabled} onClick={props.onNext}>
-          Ff
+          Next
         </button>
       </div>
       <label className="seek">
-        <span>Tape</span>
+        <span>{formatClock(props.positionMs)}</span>
         <input
           type="range"
           min={0}
@@ -47,9 +47,10 @@ export function Transport(props: TransportProps) {
           disabled={disabled || !props.durationMs}
           onChange={(e) => props.onSeek(Number(e.target.value) / 1000)}
         />
+        <span>{formatClock(props.durationMs)}</span>
       </label>
       <label className="vol">
-        <span>Vol</span>
+        <span>Volume</span>
         <input
           type="range"
           min={0}
@@ -58,7 +59,7 @@ export function Transport(props: TransportProps) {
           onChange={(e) => props.onVolume(Number(e.target.value) / 100)}
         />
         <button type="button" className="mute" onClick={props.onMute}>
-          {props.muted ? "Mute" : "Phone"}
+          {props.muted ? "Unmute" : "Mute"}
         </button>
       </label>
     </div>

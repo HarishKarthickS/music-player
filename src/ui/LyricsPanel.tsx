@@ -9,27 +9,24 @@ interface LyricsPanelProps {
 
 export function LyricsPanel({ page, blank, onChange, onClose }: LyricsPanelProps) {
   return (
-    <aside className="libretto" aria-label="J-card lyrics">
-      <div className="libretto-head">
+    <aside className="lyrics" aria-label="Lyrics">
+      <div className="lyrics-head">
         <div>
-          <p className="empty-kicker">Fold-out J-card</p>
-          <h2>{page.trackHint || "Blank insert"}</h2>
+          <p className="now-kicker">Lyrics</p>
+          <h2>{page.trackHint || "No track"}</h2>
         </div>
-        <button type="button" className="ghost-key" onClick={onClose}>
-          Fold
+        <button type="button" className="chip" onClick={onClose}>
+          Close
         </button>
       </div>
       {blank ? (
-        <p className="libretto-hint">
-          This insert is empty. Paste lyrics if you want a crib on the inlay — they stay in this
-          browser only.
-        </p>
+        <p className="lyrics-hint">No lyrics yet. Paste them here — they stay in this browser.</p>
       ) : null}
       <textarea
         value={page.body}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Side A notes, chorus, spoken bit…"
-        rows={12}
+        placeholder="Paste lyrics for the current track"
+        rows={14}
       />
     </aside>
   );

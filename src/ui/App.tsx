@@ -26,6 +26,14 @@ import { QueueList } from "./QueueList";
 import { Transport } from "./Transport";
 import { VuMeters } from "./VuMeters";
 
+function artworkHue(id: string): number {
+  let hue = 0;
+  for (let i = 0; i < id.length; i += 1) {
+    hue = (hue * 33 + id.charCodeAt(i)) % 360;
+  }
+  return hue;
+}
+
 export function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const bank = useMemo(() => new ObjectUrlBank(), []);
@@ -39,7 +47,7 @@ export function App() {
     trackHint: "",
     body: readStoredLyrics(),
   }));
-  const [librettoOpen, setLibrettoOpen] = useState(false);
+  const [lyricsOpen, setLyricsOpen] = useState(false);
   const [notices, setNotices] = useState<string[]>([]);
   const playing = currentTrack(queue);
 
@@ -73,7 +81,7 @@ export function App() {
         ...p,
         status: "error",
         currentId: track.id,
-        error: "The file handle for this cue is gone. Load the disc again.",
+        error: "This file is no longer available. Add it again.",
       }));
       return;
     }
@@ -94,7 +102,7 @@ export function App() {
       setPlayer((p) => ({
         ...p,
         status: "error",
-        error: "This chassis refused playback. Try another file.",
+        error: "Playback failed. Try another file.",
       }));
     }
   }
@@ -109,7 +117,7 @@ export function App() {
     if (rejected.length > 0) {
       setNotices(rejected);
     } else if (accepted.length === 0) {
-      setNotices(["No files made it onto the platter."]);
+      setNotices(["No audio files were added."]);
     } else {
       setNotices([]);
     }
@@ -165,7 +173,7 @@ export function App() {
       setPlayer((p) => ({
         ...p,
         status: "error",
-        error: "Playback blocked until you press a transport key again.",
+        error: "Playback was blocked. Press play again.",
       }));
     });
   }
@@ -229,12 +237,24 @@ export function App() {
     setPlayer((p) => ({ ...p, volume: next, muted: next === 0 ? p.muted : false }));
   }
 
-  const windowTitle = playing?.title ?? "NO TAPE";
-  const windowArtist = playing?.artist ?? "Slip a local file into the door";
+  const title = playing?.title ?? "Not playing";
+  const artist = playing?.artist ?? "Add files or play the sample";
   const clock = `${formatClock(player.positionMs)} / ${formatClock(player.durationMs ?? playing?.durationMs ?? null)}`;
+  const hue = playing ? artworkHue(playing.id) : 220;
+  const mark = playing ? playing.title.slice(0, 1).toUpperCase() : "♪";
+  const statusLabel =
+    player.status === "error"
+      ? "Error"
+      : player.status === "playing"
+        ? "Playing"
+        : player.status === "paused"
+          ? "Paused"
+          : player.status === "loading"
+            ? "Loading…"
+            : "Stopped";
 
   return (
-    <div className="room">
+    <div className="app">
       <audio
         ref={audioRef}
         onPlay={() => setPlayer((p) => ({ ...p, status: "playing", error: null }))}
@@ -267,134 +287,122 @@ export function App() {
           setPlayer((p) => ({
             ...p,
             status: "error",
-            error: "The decoder choked. That file may be damaged or a format this browser skips.",
+            error: "This file could not be decoded.",
           }))
         }
       />
 
-      <header className="mast">
-        <p className="brand">Pocket Deck</p>
-        <p className="model">WM-88 · stereo cassette</p>
+      <header className="topbar">
+        <p className="brand">Listen</p>
+        <div className="top-actions">
+          <label className="add-files">
+            Add files
+            <input
+              type="file"
+              accept="audio/*"
+              multiple
+              onChange={(e) => {
+                if (e.target.files) {
+                  ingest(e.target.files);
+                }
+                e.target.value = "";
+              }}
+            />
+          </label>
+          <button type="button" className="chip" onClick={loadSample}>
+            Play sample
+          </button>
+          <button
+            type="button"
+            className={`chip ${lyricsOpen ? "chip-on" : ""}`}
+            onClick={() => setLyricsOpen((v) => !v)}
+          >
+            Lyrics
+          </button>
+        </div>
       </header>
 
-      <section className="chassis" aria-label="Walkman">
-        <div className="rail rail-left" aria-hidden="true" />
-        <div className="face">
-          <div className="face-top">
-            <VuMeters active={player.status === "playing"} level={player.volume} />
-            <div className={`cassette ${playing ? "" : "cassette-empty"} ${player.status === "playing" ? "cassette-spin" : ""}`}>
-              <span className="reel reel-l" aria-hidden="true" />
-              <div className="cassette-label">
-                <p className="lcd-label">Window</p>
-                <p className="lcd-title">{windowTitle}</p>
-                <p className="lcd-artist">{windowArtist}</p>
-                <p className="lcd-clock">{clock}</p>
-                <p className="lcd-status">
-                  {player.status === "error"
-                    ? "JAM"
-                    : player.status === "playing"
-                      ? "PLAY"
-                      : player.status === "paused"
-                        ? "PAUSE"
-                        : player.status === "loading"
-                          ? "LOAD"
-                          : "STOP"}
-                </p>
-              </div>
-              <span className="reel reel-r" aria-hidden="true" />
-            </div>
-          </div>
-
-          {player.error ? (
-            <p className="fault" role="alert">
-              {player.error}
-            </p>
-          ) : null}
-
-          <Transport
-            hasDisc={Boolean(playing)}
-            status={player.status}
-            volume={player.volume}
-            muted={player.muted}
-            positionMs={player.positionMs}
-            durationMs={player.durationMs}
-            onPlayPause={onPlayPause}
-            onStop={onStop}
-            onPrev={() => skip(-1)}
-            onNext={() => skip(1)}
-            onSeek={(ratio) => {
-              const audio = audioRef.current;
-              if (!audio || !Number.isFinite(audio.duration)) {
-                return;
-              }
-              audio.currentTime = ratio * audio.duration;
-            }}
-            onVolume={setVolume}
-            onMute={() => setPlayer((p) => ({ ...p, muted: !p.muted }))}
+      <div className={`workspace ${lyricsOpen ? "workspace-lyrics" : ""}`}>
+        {queue.tracks.length === 0 ? (
+          <EmptyDeck />
+        ) : (
+          <QueueList
+            queue={queue}
+            currentId={player.currentId}
+            onPick={pickIndex}
+            onDrop={dropTrack}
           />
+        )}
 
-          <div className="bay">
-            <label className="load-key">
-              Load tape
-              <input
-                type="file"
-                accept="audio/*"
-                multiple
-                onChange={(e) => {
-                  if (e.target.files) {
-                    ingest(e.target.files);
-                  }
-                  e.target.value = "";
-                }}
-              />
-            </label>
-            <button type="button" className="ghost-key" onClick={loadSample}>
-              Pocket tone
-            </button>
-            <button
-              type="button"
-              className={`ghost-key ${librettoOpen ? "ghost-on" : ""}`}
-              onClick={() => setLibrettoOpen((v) => !v)}
-            >
-              J-card
-            </button>
+        <section className="now-playing" aria-label="Now playing">
+          <div
+            className={`artwork ${playing ? "" : "artwork-empty"} ${player.status === "playing" ? "artwork-live" : ""}`}
+            style={{
+              background: `radial-gradient(120% 80% at 18% 0%, rgba(255,255,255,0.22), transparent 46%),
+                linear-gradient(165deg, hsl(${hue} 42% 42%) 0%, hsl(${(hue + 40) % 360} 38% 22%) 52%, #121214 100%)`,
+            }}
+          >
+            <span className="artwork-mark">{mark}</span>
+            <VuMeters active={player.status === "playing"} level={player.volume} />
           </div>
+          <div className="now-meta">
+            <p className="now-kicker">{statusLabel}</p>
+            <h1>{title}</h1>
+            <p className="now-artist">{artist}</p>
+            <p className="now-clock">{clock}</p>
+          </div>
+        </section>
 
-          {notices.length > 0 ? (
-            <ul className="notices">
-              {notices.map((n) => (
-                <li key={n}>{n}</li>
-              ))}
-            </ul>
-          ) : null}
+        {lyricsOpen ? (
+          <LyricsPanel
+            page={{ ...lyrics, trackHint: playing?.title ?? "" }}
+            blank={lyricsAreBlank(lyrics)}
+            onChange={(body) => {
+              writeStoredLyrics(body);
+              setLyrics((p) => ({ ...p, body }));
+            }}
+            onClose={() => setLyricsOpen(false)}
+          />
+        ) : null}
+      </div>
 
-          {queue.tracks.length === 0 ? (
-            <EmptyDeck />
-          ) : (
-            <QueueList
-              queue={queue}
-              currentId={player.currentId}
-              onPick={pickIndex}
-              onDrop={dropTrack}
-            />
-          )}
-        </div>
-        <div className="rail rail-right" aria-hidden="true" />
-      </section>
-
-      {librettoOpen ? (
-        <LyricsPanel
-          page={{ ...lyrics, trackHint: playing?.title ?? "" }}
-          blank={lyricsAreBlank(lyrics)}
-          onChange={(body) => {
-            writeStoredLyrics(body);
-            setLyrics((p) => ({ ...p, body }));
-          }}
-          onClose={() => setLibrettoOpen(false)}
-        />
+      {player.error ? (
+        <p className="fault" role="alert">
+          {player.error}
+        </p>
       ) : null}
 
-      <p className="foot">Tapes stay in this browser. Nothing is uploaded.</p>
+      {notices.length > 0 ? (
+        <ul className="notices">
+          {notices.map((n) => (
+            <li key={n}>{n}</li>
+          ))}
+        </ul>
+      ) : null}
+
+      <Transport
+        hasDisc={Boolean(playing)}
+        status={player.status}
+        volume={player.volume}
+        muted={player.muted}
+        positionMs={player.positionMs}
+        durationMs={player.durationMs}
+        onPlayPause={onPlayPause}
+        onStop={onStop}
+        onPrev={() => skip(-1)}
+        onNext={() => skip(1)}
+        onSeek={(ratio) => {
+          const audio = audioRef.current;
+          if (!audio || !Number.isFinite(audio.duration)) {
+            return;
+          }
+          audio.currentTime = ratio * audio.duration;
+        }}
+        onVolume={setVolume}
+        onMute={() => setPlayer((p) => ({ ...p, muted: !p.muted }))}
+      />
+
+      <p className="foot">Audio stays on this device. Nothing is uploaded.</p>
     </div>
   );
 }
