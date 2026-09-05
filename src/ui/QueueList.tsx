@@ -13,10 +13,10 @@ export function QueueList({ queue, currentId, onPick, onDrop }: QueueListProps) 
   return (
     <div className="queue">
       <div className="queue-head">
-        <h2>Side A · matrix</h2>
+        <h2>Queue</h2>
         <p>
-          {queue.tracks.length} track{queue.tracks.length === 1 ? "" : "s"} · now{" "}
-          {current?.title ?? "none"}
+          {queue.tracks.length} track{queue.tracks.length === 1 ? "" : "s"}
+          {current ? ` · ${current.title}` : ""}
         </p>
       </div>
       <ol>
@@ -25,7 +25,7 @@ export function QueueList({ queue, currentId, onPick, onDrop }: QueueListProps) 
           return (
             <li key={track.id} className={active ? "cue-on" : undefined}>
               <button type="button" className="cue-pick" onClick={() => onPick(index)}>
-                <span className="cue-num">{String(index + 1).padStart(2, "0")}</span>
+                <span className="cue-num">{index + 1}</span>
                 <span className="cue-meta">
                   <strong>{track.title}</strong>
                   <em>
@@ -34,7 +34,7 @@ export function QueueList({ queue, currentId, onPick, onDrop }: QueueListProps) 
                 </span>
               </button>
               <button type="button" className="cue-drop" onClick={() => onDrop(track.id)}>
-                Eject
+                Remove
               </button>
             </li>
           );
