@@ -1,6 +1,6 @@
 # music-player
 
-Local-file cassette Walkman for the browser. Cue wav/mp3/ogg from disk, run a Side A matrix, optional J-card lyrics. Nothing leaves the machine.
+Local-file music player. Add wav/mp3/ogg from disk, play a queue, optional lyrics. Nothing leaves the machine.
 
 ## Run
 
@@ -9,9 +9,9 @@ npm install
 npm run dev
 ```
 
-Open the printed URL. You should see a teal-and-magenta 80s Walkman with an empty cassette window (`NO TAPE`). Use **Load tape** for your own audio, or **Pocket tone** for a two-second generated tuning tone in `public/tuning-tone.wav` (original sine, not a licensed track).
+Open the printed URL. You should see a dark **Listen** window with a large artwork tile and an empty queue. Use **Add files** for your own audio, or **Play sample** for a two-second generated tuning tone in `public/tuning-tone.wav` (original sine, not a licensed track).
 
-Look: glossy teal plastic shell, magenta Play key, cassette reels in the window, orange dot-matrix track list.
+Look: near-black Apple Music–style shell, large artwork, thin transport, rose accent, Nunito Sans.
 
 ```bash
 npm run build
@@ -22,8 +22,8 @@ npm run preview
 
 - `src/domain` — track, queue, player, lyrics types and pure helpers
 - `src/data` — file ingest, object URLs, volume/lyrics prefs
-- `src/ui` — Walkman chrome, transport, queue, empty/fault, J-card
+- `src/ui` — now playing, queue, transport, empty/error, lyrics
 
 ## Screenshot
 
-![WM-88 Pocket Deck empty cassette](docs/receiver.png)
+![Listen now playing with empty queue](docs/receiver.png)
