@@ -1,0 +1,45 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: #14110e;
+  color: #d8cbb8;
+  font-family: "Barlow Condensed", sans-serif;
+}
+
+.boot {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  gap: 0.4rem;
+}
+
+.boot-model {
+  margin: 0;
+  font-family: "Abril Fatface", serif;
+  font-size: 3rem;
+  color: #c9a227;
+  letter-spacing: 0.08em;
+}
+
+.boot-hint {
+  margin: 0;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8a8478;
+}
